@@ -1,0 +1,16 @@
+jobs:
+  #  - name: m2-cron
+  #    command: /usr/local/bin/magento cron:run
+  #    shell: /bin/bash
+  #    schedule: "* * * * *"
+  #    concurrencyPolicy: Allow
+  #  - name: m2-cron-setup
+  #    command: /usr/local/bin/magento setup:cron:run
+  #    shell: /bin/bash
+  #    schedule: "* * * * *"
+  #    concurrencyPolicy: Allow
+  - name: m2-hello-world
+    command: echo "Dummy job"
+    shell: /bin/bash
+    schedule: "* * * * *"
+    concurrencyPolicy: Forbid

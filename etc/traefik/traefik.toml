@@ -1,0 +1,44 @@
+debug = false
+
+logLevel = "ERROR"
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+      [[entryPoints.https.tls.certificates]]
+          certFile = "/etc/ssl/cert.crt"
+          keyFile = "/etc/ssl/cert.key"
+
+[retry]
+
+[docker]
+exposedByDefault = false
+
+[respondingTimeouts]
+
+# readTimeout is the maximum duration for reading the entire request, including the body.
+#
+# Optional
+# Default: "0s"
+#
+# readTimeout = "5s"
+
+# writeTimeout is the maximum duration before timing out writes of the response.
+#
+# Optional
+# Default: "0s"
+#
+# writeTimeout = "5s"
+
+# idleTimeout is the maximum duration an idle (keep-alive) connection will remain idle before closing itself.
+#
+# Optional
+# Default: "180s"
+#
+idleTimeout = "600s"

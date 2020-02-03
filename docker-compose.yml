@@ -1,0 +1,71 @@
+version: "3"
+
+services:
+
+    magento:
+        image: registry.bighead.net/train/magento-2-sandbox/base-php-fpm:7.2.27-1
+        env_file: ./etc/php/.env
+        volumes:
+            - ./etc/bin/magento:/usr/local/bin/magento
+            - ./etc/php/apache2.conf:/etc/apache2/sites-enabled/000-default.conf
+            - ./etc/apache2/custom.conf:/etc/apache2/conf-enabled/custom.conf
+            - ./etc/php/php-dev.ini:/etc/php/7.2/cli/conf.d/custom.ini
+            - ./etc/php/php-dev.ini:/etc/php/7.2/apache2/conf.d/custom.ini
+            - ./etc/php/www.conf:/etc/php/7.2/fpm/pool.d/www.conf
+            - ./etc/php/xdebug.ini:/etc/php/7.2/mods-available/xdebug.ini
+            - ./etc/cron/cron.yml:/usr/local/etc/cron.yml
+            - ./etc/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ./etc/supervisord/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+            - .:/var/www/html
+            - ./etc/run.sh:/usr/local/bin/run.sh
+        working_dir: "/var/www/html"
+        restart: unless-stopped
+        labels:
+            - traefik.port=80
+            - traefik.enable=true
+            - "traefik.frontend.rule=Host:local.bighead.net"
+        command:
+            - /usr/local/bin/run.sh
+
+    mysql:
+        image: registry.bighead.net/bighead/swarm/maria:10.2
+        env_file: ./etc/php/.env
+        volumes:
+            - ./etc/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+            - ./etc/mysql/init-db:/docker-entrypoint-initdb.d
+        ports:
+            - "3306:3306"
+        restart: unless-stopped
+        labels:
+            - traefik.enable=false
+
+    redis:
+        image: redis
+        environment: { TERM: xterm }
+        restart: unless-stopped
+        labels:
+            - traefik.enable=false
+
+    mailhog:
+        image: mailhog/mailhog
+        labels:
+            - traefik.enable=true
+            - traefik.port=8025
+            - "traefik.frontend.rule=Host:mailhog.local.bighead.net"
+
+    traefik:
+        image: traefik:1.7
+        command:
+            - "--api"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./etc/traefik/ssl/cert.crt:/etc/ssl/cert.crt
+            - ./etc/traefik/ssl/cert.key:/etc/ssl/cert.key
+            - ./etc/traefik/traefik.toml:/traefik.toml:ro
+        labels:
+            - traefik.enable=true
+            - traefik.port=8080
+            - "traefik.frontend.rule=Host:traefik.local.bighead.net"
+        ports:
+            - "80:80"
+            - "443:443"

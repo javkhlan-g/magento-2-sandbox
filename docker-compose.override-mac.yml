@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+
+    magento:
+        volumes:
+            - .:/var/www/html:delegated
+            - /var/www/html/magento/pub/static
+            - /var/www/html/magento/vendor
+            - /var/www/html/magento/generated
+            - ./vendor:/srv/vendor
